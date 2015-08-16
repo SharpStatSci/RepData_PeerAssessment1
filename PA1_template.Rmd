@@ -1,26 +1,73 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-author: "Jesse Sharp"
-date: "August 15, 2015"
-output: html_document
-keep_md: true
+#title: "Reproducible Research: Peer Assessment 1"
+#author: "Jesse Sharp"
+#date: "August 15, 2015"
+#output: html_document
+#keep_md: true
 ---
 
+# Jesse Sharp
+# clone the repo
+# https://github.com/SharpStatSci/RepData_PeerAssessment1.git
 
-## Loading and preprocessing the data
+### Loading and preprocessing the data
+
+getwd()
+setwd("C:/StatWare/Rprog/RepData/project1")
+
+actdata <- read.csv("C:/StatWare/Rprog/RepData/project1/data/activity.csv")
+
+```{r}
+head(actdata)
+tail(actdata)
+str(actdata)
+summary(actdata)
+
+sum(is.na(actdata$steps))
+sum(!is.na(actdata$steps))
+
+sum(is.na(actdata$date))
+sum(!is.na(actdata$date))
+
+sum(is.na(actdata$interval))
+sum(!is.na(actdata$interval))
+```
+
+### What is mean total number of steps taken per day?
+
+actdata2 <- actdata[!is.na(actdata$steps),]
+summary(actdata2)
+
+actday <- aggregate(actdata2$steps, by=list(actdata2$date), mean)
+actday
+
+mean(actday$x)
+median(actday$x)
+
+hist(actdata2$steps)
+hist(actday$x)
+
+actday2 <- aggregate(actdata2$steps, by=list(actdata2$date), median)
+actday2
+
+mean(actday$x)
+median(actday$x)
+
+### What is the average daily activity pattern?
+# steps by interval, interval with max steps
+
+head(actdata2[actdata2$interval==25,])
+
+actint <- aggregate(actdata2$steps, by=list(actdata2$interval), mean)
+head(actint)
+
+plot(actint$Group.1, actint$x, type="l", xlab = "Interval", ylab = "Average Steps",main="Ave Steps by Interval")
+
+summary(actint)
+actint[actint$x>=100,] #interval 835
+
+### Imputing missing values
 
 
 
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
+### Are there differences in activity patterns between weekdays and weekends?
