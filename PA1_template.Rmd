@@ -1,27 +1,32 @@
 ---
-## title: "Reproducible Research: Peer Assessment 1"
+title: "Reproducible Research: Peer Assessment 1"
 author: "Jesse Sharp"
 date: "August 15, 2015"
 output: html_document
 keep_md: true
 ---
 
+## Reproducible Research: Peer Assessment 1
 ### Loading and preprocessing the data
 
 The first step in the analysis is to load the data into R and take a look at it.
 After examining the basic properties of the file we can move on to cleaning or
-modifying the dataset if necessary.
+modifying the dataset if necessary. We assume data has been downloaded to a
+data folder.
+
+A more complete solution would check for the folder and data and if not found
+create the folder and attempt to download the data.
 
 ```{r}
 # set the correct working directory
 # we assume data is already downloaded into a data folder
 
 getwd()
-setwd("C:/StatWare/Rprog/RepData/project1")
+setwd("C:/StatWare/Rprog/RepData/RepData_PeerAssessment1")
 
-actdata <- read.csv("C:/StatWare/Rprog/RepData/project1/data/activity.csv")
+actdata <- read.csv("C:/StatWare/Rprog/RepData/RepData_PeerAssessment1/data/activity.csv")
 
-# check the basic properties of the data, missing value check is below
+# check the basic properties of the data, missing value check is shown below
 
 head(actdata)
 tail(actdata)
@@ -33,38 +38,48 @@ summary(actdata)
 ### What is mean total number of steps taken per day?
 
 For this section we are asked to plot a histogram of the mean number of steps
-per day. In addition, compute the mean and median steps per day. 
+per day. In addition, compute the mean and median steps per day. First we 
+look at a histogram of the data "as-is" from the summary() we have the mean
+and median of steps for the raw dataset.
 
 ```{r}
 actdata2 <- actdata[!is.na(actdata$steps),]
 summary(actdata2)
 
-actday <- aggregate(actdata2$steps, by=list(actdata2$date), mean)
+dailymean <- aggregate(actdata2$steps, by=list(actdata2$date), mean)
 
 # mean and median after removing NA
-mean(actday$x)
-median(actday$x)
+mean(dailymean$x)
+median(dailymean$x)
 ```
-
 
 ```{r}
-    hist(actdata2$steps)
-    hist(actday$x)
+hist(dailymean$x, xlab="Steps", main=paste("Histogram of Average Daily Steps"))
 ```
 
+The histogram above gives us a quick visual of the spread in the data. The mean is about 37.4 steps.
+
+ 
 ### What is the average daily activity pattern?
+
+This section requests a time series plot of average steps over the daily intervals.
+
 ```{r}
 # steps by interval, interval with max steps
 
-actint <- aggregate(actdata2$steps, by=list(actdata2$interval), mean)
-head(actint)
+intmean <- aggregate(actdata2$steps, by=list(actdata2$interval), mean)
+head(intmean)
 
-plot(actint$Group.1, actint$x, type="l", xlab = "Interval", ylab = "Average Steps", col="blue", main="Ave Steps by Interval")
+plot(intmean$Group.1, intmean$x, type="l", xlab = "Interval", ylab = "Average Steps", col="blue", main="Ave Steps by Interval")
 
-summary(actint)
-actint[actint$x>=100,] #interval 835
+# simpliest way of finding the interval - look at the max
+summary(intmean)
+intmean[intmean$x>=100,] #interval 835 is the one
 ```
+
 ### Imputing missing values
+
+Check for which columns have missing values.
 
 ```{r}
 sum(is.na(actdata$steps))
@@ -77,7 +92,60 @@ sum(is.na(actdata$interval))
 sum(!is.na(actdata$interval))
 ```
 
-### Are there differences in activity patterns between weekdays and weekends?
+We note that only the steps column is missing data and since we have seen in the histogram that
+there is potentially an impact to our study due to the missing values. There are many approaches.
+For the entire assignment we are attempting to take a simple base R approach. We look at the means
+by day and by interval as well as some of the medians.
 
 ```{r}
+intmed <- aggregate(actdata2$steps, by=list(actdata2$interval), median)
+
+#aggregated by interval
+summary(intmean)
+summary(intmed)
+#aggregated by day
+summary(dailymean)
+
+# substitute interval mean steps for missing values
+actdata$newsteps <- ifelse(is.na(actdata$steps),
+                              intmean$x, actdata$steps)
+
+summary(actdata)
 ```
+
+We select the interval means to use to substitute for the missing data. This helps preserve 
+variability that gets lost in selecting medians at the cost of potentially overstating values. 
+Using the daily mean would amplify the issues in using a mean in the first place. Note that
+we preserve the overall mean as well (37.38).
+
+### Are there differences in activity patterns between weekdays and weekends?
+
+The assignment asks to plot the overall averages by interval for weedays and weekends on separate plots in
+a panel. For ease we use the lattice package like the sample plot. In order to smooth the data we aggregate
+by interval and the weekend or weekday variable. This helps us to see the pattern that weekends show a
+greater amount of activity overall compared to weekdays but that weekays have a considerable amount of
+activity in the early intervals.
+
+
+```{r}
+
+actdata$weekday <- weekdays(as.POSIXlt(actdata$date))
+actdata$daycat <- ifelse(actdata$weekday %in% c("Saturday","Sunday"), "Weekend", "Weekday")
+
+library(lattice)
+
+newdailymean <- aggregate(actdata$newsteps, by=list(actdata$interval, actdata$daycat), mean)
+head(newdailymean)
+
+xyplot(x ~ Group.1 | Group.2 , data=newdailymean, type="l", layout=c(1,2), xlab="Interval", ylab="Steps", main=paste("Average Steps by Interval for Weekdays and Weekends"))
+
+```
+
+### This section is for assignment submission
+
+We are directed to use knitr but with the command and not RStudio GUI
+```{r}
+#library(knitr)
+#knit2html("PA1_template.Rmd","PA1_template.html")
+```
+
