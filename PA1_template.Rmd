@@ -1,13 +1,10 @@
 ---
-##title: "Reproducible Research: Peer Assessment 1"
-## * author: "Jesse Sharp"
-##date: "August 15, 2015"
-##output: html_document
-##keep_md: true
+## title: "Reproducible Research: Peer Assessment 1"
+author: "Jesse Sharp"
+date: "August 15, 2015"
+output: html_document
+keep_md: true
 ---
-
-## Clone the repo
-## https://github.com/SharpStatSci/RepData_PeerAssessment1.git
 
 ### Loading and preprocessing the data
 
@@ -24,21 +21,13 @@ setwd("C:/StatWare/Rprog/RepData/project1")
 
 actdata <- read.csv("C:/StatWare/Rprog/RepData/project1/data/activity.csv")
 
-# check the basic properties of the data
+# check the basic properties of the data, missing value check is below
 
 head(actdata)
 tail(actdata)
 str(actdata)
 summary(actdata)
 
-sum(is.na(actdata$steps))
-sum(!is.na(actdata$steps))
-
-sum(is.na(actdata$date))
-sum(!is.na(actdata$date))
-
-sum(is.na(actdata$interval))
-sum(!is.na(actdata$interval))
 ```
 
 ### What is mean total number of steps taken per day?
@@ -59,12 +48,8 @@ median(actday$x)
 
 
 ```{r}
-plot1 <- function() {
-    par(mfrow = c(1, 2))
     hist(actdata2$steps)
     hist(actday$x)
-}
-plot1
 ```
 
 ### What is the average daily activity pattern?
@@ -82,6 +67,14 @@ actint[actint$x>=100,] #interval 835
 ### Imputing missing values
 
 ```{r}
+sum(is.na(actdata$steps))
+sum(!is.na(actdata$steps))
+
+sum(is.na(actdata$date))
+sum(!is.na(actdata$date))
+
+sum(is.na(actdata$interval))
+sum(!is.na(actdata$interval))
 ```
 
 ### Are there differences in activity patterns between weekdays and weekends?
