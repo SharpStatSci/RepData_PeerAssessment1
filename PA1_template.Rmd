@@ -1,8 +1,9 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+author: "Jesse Sharp"
+date: "August 15, 2015"
+output: html_document
+keep_md: true
 ---
 
 
