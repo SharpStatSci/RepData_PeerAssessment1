@@ -1,23 +1,31 @@
 ---
-#title: "Reproducible Research: Peer Assessment 1"
-#author: "Jesse Sharp"
-#date: "August 15, 2015"
-#output: html_document
-#keep_md: true
+##title: "Reproducible Research: Peer Assessment 1"
+## * author: "Jesse Sharp"
+##date: "August 15, 2015"
+##output: html_document
+##keep_md: true
 ---
 
-# Jesse Sharp
-# clone the repo
-# https://github.com/SharpStatSci/RepData_PeerAssessment1.git
+## Clone the repo
+## https://github.com/SharpStatSci/RepData_PeerAssessment1.git
 
 ### Loading and preprocessing the data
+
+The first step in the analysis is to load the data into R and take a look at it.
+After examining the basic properties of the file we can move on to cleaning or
+modifying the dataset if necessary.
+
+```{r}
+# set the correct working directory
+# we assume data is already downloaded into a data folder
 
 getwd()
 setwd("C:/StatWare/Rprog/RepData/project1")
 
 actdata <- read.csv("C:/StatWare/Rprog/RepData/project1/data/activity.csv")
 
-```{r}
+# check the basic properties of the data
+
 head(actdata)
 tail(actdata)
 str(actdata)
@@ -35,39 +43,48 @@ sum(!is.na(actdata$interval))
 
 ### What is mean total number of steps taken per day?
 
+For this section we are asked to plot a histogram of the mean number of steps
+per day. In addition, compute the mean and median steps per day. 
+
+```{r}
 actdata2 <- actdata[!is.na(actdata$steps),]
 summary(actdata2)
 
 actday <- aggregate(actdata2$steps, by=list(actdata2$date), mean)
-actday
 
+# mean and median after removing NA
 mean(actday$x)
 median(actday$x)
+```
 
-hist(actdata2$steps)
-hist(actday$x)
 
-actday2 <- aggregate(actdata2$steps, by=list(actdata2$date), median)
-actday2
-
-mean(actday$x)
-median(actday$x)
+```{r}
+plot1 <- function() {
+    par(mfrow = c(1, 2))
+    hist(actdata2$steps)
+    hist(actday$x)
+}
+plot1
+```
 
 ### What is the average daily activity pattern?
+```{r}
 # steps by interval, interval with max steps
-
-head(actdata2[actdata2$interval==25,])
 
 actint <- aggregate(actdata2$steps, by=list(actdata2$interval), mean)
 head(actint)
 
-plot(actint$Group.1, actint$x, type="l", xlab = "Interval", ylab = "Average Steps",main="Ave Steps by Interval")
+plot(actint$Group.1, actint$x, type="l", xlab = "Interval", ylab = "Average Steps", col="blue", main="Ave Steps by Interval")
 
 summary(actint)
 actint[actint$x>=100,] #interval 835
-
+```
 ### Imputing missing values
 
-
+```{r}
+```
 
 ### Are there differences in activity patterns between weekdays and weekends?
+
+```{r}
+```
